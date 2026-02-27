@@ -31,8 +31,6 @@ A simple console-based image editor written in Java that allows you to perform b
     ```bash
     java src.Main
     ```
-    *(Nota: Ajusta el comando según el nombre de tu clase principal).*
-
 ---
 
 ## Coordinate Selection
