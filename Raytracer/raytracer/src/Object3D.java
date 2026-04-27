@@ -3,7 +3,9 @@ abstract class Object3D {
     public Object3D(Vector3D position) {
         this.position = position;
     }
-    abstract public Intersection  collition(Ray ray);
+    abstract public Intersection  collition(Ray ray); // overwritten by all objects
+
+    abstract public int[] getColor(); // overwritten by all objects
 
     public Vector3D getPosition() {
         return position;

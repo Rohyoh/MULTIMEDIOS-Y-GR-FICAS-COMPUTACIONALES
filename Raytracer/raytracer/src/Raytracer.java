@@ -27,6 +27,13 @@ public class Raytracer {
                 new int[]{0, 0, 255}         // Color (blue)
         ));
 
+        scene.addObject(new Triangle(
+                new Vector3D(-2, -1, -5),     // Origin + the other 2 coordinates
+                new Vector3D(2, -1, -5),
+                new Vector3D(0, 2, -5),
+                new int[]{0, 255, 0}         // Color (green)
+        ));
+
         // Create camera
         // Camera is at origin (0, 0, 0) looking towards -Z
         Camera camera = new Camera(
@@ -69,8 +76,8 @@ public class Raytracer {
                 int rgb;
                 if (intersection != null) {
                     // Ray hit an object - get its color
-                    Sphere sphere = (Sphere) intersection.getObject();
-                    int[] color = sphere.getColor();
+                    Object3D hitObject = intersection.getObject();
+                    int[] color = hitObject.getColor();
 
                     // Convert RGB to an integer
                     // Format: 0xRRGGBB
