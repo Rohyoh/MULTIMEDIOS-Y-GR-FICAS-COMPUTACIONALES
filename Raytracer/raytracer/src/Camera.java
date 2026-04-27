@@ -2,13 +2,21 @@ public class Camera {
     private Vector3D position;    // Camera position
     private double fov;           // Field of view in degrees
     private double aspectRatio;   // width / height ratio
+    private double near;  // Near plane
+    private double far;  // Far plane
 
     // X axis points right, Y axis points up, Z axis points backwards
-    public Camera(Vector3D position, double fov, int width, int height) {
+    public Camera(Vector3D position, double fov, int width, int height, double near, double far) {
         this.position = position;
         this.fov = fov;
         this.aspectRatio = (double) width / height;
+        this.near = near;
+        this.far = far;
     }
+
+    // Functions to get the near & far planes
+    public double getNear() { return near; }
+    public double getFar() { return far; }
 
     // Generate a ray for pixel (x, y)
     // Camera coordinate system:

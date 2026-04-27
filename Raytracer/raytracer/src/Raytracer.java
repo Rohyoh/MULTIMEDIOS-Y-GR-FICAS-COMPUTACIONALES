@@ -40,7 +40,9 @@ public class Raytracer {
                 new Vector3D(0, 0, 0),       // Position at origin
                 60,                           // field of view
                 width,
-                height
+                height,
+                1.0,        // nearplane
+                100         // farplane
         );
 
         // Render the scene
@@ -70,8 +72,8 @@ public class Raytracer {
                 // Generate ray for this pixel
                 Ray ray = camera.generateRay(x, y, width, height);
 
-                // Find closest intersection in the scene
-                Intersection intersection = scene.raycast(ray);
+                // We consider the near & far plane
+                Intersection intersection = scene.raycast(ray, camera.getNear(), camera.getFar());
 
                 int rgb;
                 if (intersection != null) {

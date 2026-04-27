@@ -15,7 +15,7 @@ public class Scene {
 
     // Find the closest intersection with any object in the scene
     // Returns null if no intersection found
-    public Intersection raycast(Ray ray) {
+    public Intersection raycast(Ray ray, double near, double far) {
         Intersection closestIntersection = null;
 
         // We search through each object in the scene
@@ -23,13 +23,15 @@ public class Scene {
             Intersection intersection = obj.collition(ray);
 
             if (intersection != null) {
-                // If this is the first intersection, or it's closer than previous
-                if (closestIntersection == null || intersection.getDistance() < closestIntersection.getDistance()) {
-                    closestIntersection = intersection;
+                double dist = intersection.getDistance();
+                // The object has to be between near & far plane
+                if (dist >= near && dist <= far) {
+                    if (closestIntersection == null || dist < closestIntersection.getDistance()) {
+                        closestIntersection = intersection;
+                    }
                 }
             }
         }
-
         return closestIntersection;
     }
 
