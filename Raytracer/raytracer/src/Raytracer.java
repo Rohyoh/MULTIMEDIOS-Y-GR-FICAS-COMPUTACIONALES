@@ -34,6 +34,17 @@ public class Raytracer {
                 new int[]{0, 255, 0}         // Color (green)
         ));
 
+        // Adds Obj to the scene
+        OBJreader reader = new OBJreader(
+                "objects/star.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1.0,                         // Scale
+                0,                           // translateX
+                -0.5,                        // translateY
+                -8                           // translateZ
+        );
+        scene.addObject(reader.getObj());
+
         // Create camera
         // Camera is at origin (0, 0, 0) looking towards -Z
         Camera camera = new Camera(
