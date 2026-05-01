@@ -36,12 +36,12 @@ public class Raytracer {
 
         // Adds Obj to the scene
         OBJreader reader = new OBJreader(
-                "objects/star.obj",           // obj's path
+                "objects/cat.obj",           // obj's path
                 new int[]{255, 100, 0},     // Color (orange)
-                1.0,                         // Scale
+                0.009,                         // Scale
                 0,                           // translateX
                 -0.5,                        // translateY
-                -8                           // translateZ
+                -5.9                           // translateZ
         );
         scene.addObject(reader.getObj());
 

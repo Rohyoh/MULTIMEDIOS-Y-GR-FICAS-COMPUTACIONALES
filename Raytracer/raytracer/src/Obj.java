@@ -13,7 +13,7 @@ public class Obj extends Object3D {
         objBuilder(Vertices, id);
     }
 
-    // We use the following method to move the object around our scene
+    /* We use the following method to move the object around our scene    <-------- Redundant
     public void translate(double dx, double dy, double dz) {
         triangles.clear();
         ArrayList<Double> translatedVertices = new ArrayList<>();
@@ -26,9 +26,9 @@ public class Obj extends Object3D {
 
         // We reconstruct the triangles with the now moved vertices
         rebuildTriangles(translatedVertices);
-    }
+    } */
 
-    // We scale the object in x, y, z
+    /* We scale the object in x, y, z       <---------- Redundant
     public void scale(double sx, double sy, double sz) {
         triangles.clear();
         ArrayList<Double> scaledVertices = new ArrayList<>();
@@ -45,16 +45,16 @@ public class Obj extends Object3D {
     // we can also scale uniformly in x, y, z by applying the same constant to all vertices
     public void scale(double s) {
         scale(s, s, s);
-    }
+    } */
 
-    // Receives moved/scaled vertices --> reconstructs all the triangles
+    /* Receives moved/scaled vertices --> reconstructs all the triangles <------- redundant
     private void rebuildTriangles(ArrayList<Double> vertices) {
         // We do not need to read all the ids once more, because before calling this method the ids are read beforehand
         // ONLY uses previously processed vertices
         for (Triangle t : new ArrayList<>(triangles)) {
             // We create triangles --> we update the list
         }
-    }
+    } */
 
     public void objBuilder(ArrayList<Double> Vertices, ArrayList<Integer> id){
         /*used for debugging <---------------
