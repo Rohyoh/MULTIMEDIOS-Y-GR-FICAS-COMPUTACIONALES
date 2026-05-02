@@ -3,59 +3,15 @@ import java.util.ArrayList;
 public class Obj extends Object3D {
     ArrayList<Triangle> triangles = new ArrayList<>();
     private int[] color; // Obj's color
-    private ArrayList<Double> originalVertices; // We store the original vertices
+    //private ArrayList<Double> originalVertices; // We store the original vertices
 
     public Obj(ArrayList<Double> Vertices, ArrayList<Integer> id, int[] color) {
         // We use the first vertices as the obj's base
         super(new Vector3D(0, 0, 0)); // Relative position with the origin
         this.color = color;
-        this.originalVertices = new ArrayList<>(Vertices); // Copy of the original vertices
+        //this.originalVertices = new ArrayList<>(Vertices); // Copy of the original vertices
         objBuilder(Vertices, id);
     }
-
-    /* We use the following method to move the object around our scene    <-------- Redundant
-    public void translate(double dx, double dy, double dz) {
-        triangles.clear();
-        ArrayList<Double> translatedVertices = new ArrayList<>();
-
-        for (int i = 0; i < originalVertices.size(); i += 3) {
-            translatedVertices.add(originalVertices.get(i) + dx);
-            translatedVertices.add(originalVertices.get(i + 1) + dy);
-            translatedVertices.add(originalVertices.get(i + 2) + dz);
-        }
-
-        // We reconstruct the triangles with the now moved vertices
-        rebuildTriangles(translatedVertices);
-    } */
-
-    /* We scale the object in x, y, z       <---------- Redundant
-    public void scale(double sx, double sy, double sz) {
-        triangles.clear();
-        ArrayList<Double> scaledVertices = new ArrayList<>();
-
-        for (int i = 0; i < originalVertices.size(); i += 3) {
-            scaledVertices.add(originalVertices.get(i) * sx);
-            scaledVertices.add(originalVertices.get(i + 1) * sy);
-            scaledVertices.add(originalVertices.get(i + 2) * sz);
-        }
-        // We reconstruct the triangles with the now scaled vertices
-        rebuildTriangles(scaledVertices);
-    }
-
-    // we can also scale uniformly in x, y, z by applying the same constant to all vertices
-    public void scale(double s) {
-        scale(s, s, s);
-    } */
-
-    /* Receives moved/scaled vertices --> reconstructs all the triangles <------- redundant
-    private void rebuildTriangles(ArrayList<Double> vertices) {
-        // We do not need to read all the ids once more, because before calling this method the ids are read beforehand
-        // ONLY uses previously processed vertices
-        for (Triangle t : new ArrayList<>(triangles)) {
-            // We create triangles --> we update the list
-        }
-    } */
-
     public void objBuilder(ArrayList<Double> Vertices, ArrayList<Integer> id){
         /*used for debugging <---------------
 
@@ -141,16 +97,22 @@ public class Obj extends Object3D {
         // We verify each obj's triangles intersection with each ray
         for (Triangle triangle : triangles) {
             Intersection hit = triangle.collition(ray);
-
+            Vector3D hitNormal = triangle.getNormal();
             if (hit != null) { // if there's a hit
                 if (closest == null || hit.getDistance() < closest.getDistance()) {
-                    // We create a new intersection that points towards the obj, not towards that individual triangle
-                    closest = new Intersection(hit.getDistance(), this);
+                    // We save the hit with the triangle & save the normal
+                    closest = hit;
+                    closest.setNormal(triangle.getNormal());
                 }
             }
         }
 
         return closest;
+    }
+
+    @Override
+    public int[] DiffuseShading(Vector3D rayDirection, int[] color, double rayIntensity, Vector3D normal) {
+        return new int[]{0, 0, 0};
     }
 
     @Override

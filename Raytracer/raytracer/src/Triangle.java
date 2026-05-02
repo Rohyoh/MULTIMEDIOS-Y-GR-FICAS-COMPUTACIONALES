@@ -1,5 +1,5 @@
 public class Triangle extends Object3D {
-    private Vector3D v0, v1, v2;
+    private Vector3D v0, v1, v2, normal;
     private int[] color;
 
     public Triangle(Vector3D v0, Vector3D v1, Vector3D v2, int[] color) {
@@ -8,7 +8,26 @@ public class Triangle extends Object3D {
         this.v0 = v0;
         this.v1 = v1;
         this.v2 = v2;
+        Vector3D V = Vector3D.L(v1,v0);
+        Vector3D W = Vector3D.L(v2,v0);
+        this.normal = Vector3D.cross(V,W);
+        this.normal.normalize();
         this.color = color;
+    }
+
+
+    @Override
+    public int[] DiffuseShading(Vector3D rayDirection, int[] color, double rayIntensity, Vector3D normal) {
+        //We calculate the ray's direction... let us remember that cos(theta) = N (triangle's normal) dot L (rayDirection)
+        double angle = Math.max(0, this.normal.point(rayDirection)); // by using max(0, etc) we're outting all possible negative values
+
+        // We apply the lambertian surface formula for flat shading --> Lc * Oc * Li * Angle
+        int r = (int)(color[0] * (this.color[0] / 255.0) * rayIntensity * angle);
+        int g = (int)(color[1] * (this.color[1] / 255.0) * rayIntensity * angle);
+        int b = (int)(color[2] * (this.color[2] / 255.0) * rayIntensity * angle);
+
+        // We set the rgb values to 255
+        return new int[]{Math.min(r, 255), Math.min(g, 255), Math.min(b, 255)};
     }
 
     @Override
@@ -55,4 +74,5 @@ public class Triangle extends Object3D {
     public int[] getColor() {
         return color;
     }
+    public Vector3D getNormal() {return normal;}
 }

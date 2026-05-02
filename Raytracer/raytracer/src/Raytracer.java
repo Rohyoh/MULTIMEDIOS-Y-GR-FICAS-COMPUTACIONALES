@@ -41,7 +41,7 @@ public class Raytracer {
                 0.009,                         // Scale
                 0,                           // translateX
                 -0.5,                        // translateY
-                -5.9                           // translateZ
+                -4.5                           // translateZ
         );
         scene.addObject(reader.getObj());
 
@@ -65,7 +65,7 @@ public class Raytracer {
             ImageIO.write(image, "png", new File("output.png"));
             System.out.println("✓ Bomboclat image was succesfully stored as output.png <--- Poggers");
         } catch (IOException e) {
-            System.err.println("✗ Bomboclat image filed to process, back to the coal mines:");
+            System.err.println("✗ Bomboclat image failed to process, back to the coal mines:");
             e.printStackTrace();
         }
     }
@@ -88,12 +88,16 @@ public class Raytracer {
 
                 int rgb;
                 if (intersection != null) {
-                    // Ray hit an object - get its color
                     Object3D hitObject = intersection.getObject();
-                    int[] color = hitObject.getColor();
+                    Vector3D normal = intersection.getNormal(); // Asegúrate de tener el getter en Intersection
 
-                    // Convert RGB to an integer
-                    // Format: 0xRRGGBB
+                    // Light data
+                    Vector3D Light = new Vector3D(0, 0, 5);
+                    Light.normalize();
+                    int[] Lc = {255, 255, 255}; // Light's color
+                    double Li = 1.0;            // Max intensity
+
+                    int[] color = hitObject.DiffuseShading(Light, Lc, Li, normal);
                     rgb = (color[0] << 16) | (color[1] << 8) | color[2];
                 } else {
                     // Ray didn't hit anything --> background color (white)

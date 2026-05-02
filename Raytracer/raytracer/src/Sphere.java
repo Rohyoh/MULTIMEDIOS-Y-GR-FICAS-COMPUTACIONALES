@@ -33,18 +33,38 @@ public class Sphere extends Object3D {
         double t0 = TCA - THC; // Entry point
         double t1 = TCA + THC; // Exit point
 
-        // We decide which t to use
-        double t;
-        if (t0 > 0) {
-            t = t0;  // We use the entry t0 (closest)
-        } else if (t1 > 0) {
-            t = t1;  // Camera inside the object, use t1
-        } else {
-            return null;  // Both behind the camera
-        }
+        // we use the valid t
+        if (t0 > 0 || t1 > 0) {
+            double t = (t0 > 0) ? t0 : t1;
 
-        // We create and return the intersection
-        return new Intersection(t, this);
+            // We calculate the impact point (P = O + tD)
+            Vector3D hitPoint = ray.getCamera().add(ray.getDirection().multiply(t));
+
+            // We calculate the normal (P - center)
+            Vector3D normal = Vector3D.L(hitPoint, this.getPosition());
+            normal.normalize(); // ¡BOMBOCLAT IMPORTANT to normalize!
+
+            // We create the intersection & pass the normal
+            Intersection hit = new Intersection(t, this);
+            hit.setNormal(normal);
+
+            return hit;
+        }
+        return null;
+    }
+
+    @Override
+    public int[] DiffuseShading(Vector3D rayDirection, int[] color, double rayIntensity, Vector3D normal) {
+        //We calculate the ray's direction... let us remember that cos(theta) = N (triangle's normal) dot L (rayDirection)
+        double angle = Math.max(0, normal.point(rayDirection)); // by using max(0, etc) we're outting all possible negative values
+
+        // We apply the lambertian surface formula for flat shading --> Lc * Oc * Li * Angle
+        int r = (int)(color[0] * (this.color[0] / 255.0) * rayIntensity * angle);
+        int g = (int)(color[1] * (this.color[1] / 255.0) * rayIntensity * angle);
+        int b = (int)(color[2] * (this.color[2] / 255.0) * rayIntensity * angle);
+
+        // We set the rgb values to 255
+        return new int[]{Math.min(r, 255), Math.min(g, 255), Math.min(b, 255)};
     }
 
     public int[] getColor() {
