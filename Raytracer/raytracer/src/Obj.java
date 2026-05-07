@@ -3,90 +3,82 @@ import java.util.ArrayList;
 public class Obj extends Object3D {
     ArrayList<Triangle> triangles = new ArrayList<>();
     private int[] color; // Obj's color
-    //private ArrayList<Double> originalVertices; // We store the original vertices
 
-    public Obj(ArrayList<Double> Vertices, ArrayList<Integer> id, int[] color) {
+    public Obj(ArrayList<Double> Vertices, ArrayList<Integer> id,
+               ArrayList<Double> vNormals, ArrayList<Integer> idNormals,
+               ArrayList<Integer> faceSmoothGroups, int[] color) {
         // We use the first vertices as the obj's base
         super(new Vector3D(0, 0, 0)); // Relative position with the origin
         this.color = color;
-        //this.originalVertices = new ArrayList<>(Vertices); // Copy of the original vertices
-        objBuilder(Vertices, id);
+        objBuilder(Vertices, id, vNormals, idNormals, faceSmoothGroups);
     }
-    public void objBuilder(ArrayList<Double> Vertices, ArrayList<Integer> id){
-        /*used for debugging <---------------
 
-        System.out.println("Total vertices: " + Vertices.size() / 3);
+    public void objBuilder(ArrayList<Double> Vertices, ArrayList<Integer> id,
+                           ArrayList<Double> vNormals, ArrayList<Integer> idNormals,
+                           ArrayList<Integer> faceSmoothGroups) {
+        int numVertices = Vertices.size() / 3;
+
+        // For debugging
+        /*
+        System.out.println("Total vertices: " + numVertices);
         System.out.println("Total face indices: " + id.size());
+        System.out.println("Total vNormals: " + (vNormals != null ? vNormals.size() / 3 : 0));
+        System.out.println("Total idNormals: " + (idNormals != null ? idNormals.size() : 0));
+        System.out.println("Total smooth groups: " + (faceSmoothGroups != null ? faceSmoothGroups.size() : 0));
+        */
 
-         We can calculate the bounds of the object for debugging purposes <---------------
-
-        double minX = Double.MAX_VALUE, maxX = Double.MIN_VALUE;
-        double minY = Double.MAX_VALUE, maxY = Double.MIN_VALUE;
-        double minZ = Double.MAX_VALUE, maxZ = Double.MIN_VALUE;
-
-        for (int i = 0; i < Vertices.size(); i += 3) {
-            double x = Vertices.get(i);
-            double y = Vertices.get(i + 1);
-            double z = Vertices.get(i + 2);
-
-            minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-            minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
-        }
-
-        System.out.println("Object bounds:");
-        System.out.println("  X: [" + minX + ", " + maxX + "]");
-        System.out.println("  Y: [" + minY + ", " + maxY + "]");
-        System.out.println("  Z: [" + minZ + ", " + maxZ + "]");
-        System.out.println("  Center: (" + ((minX+maxX)/2) + ", " + ((minY+maxY)/2) + ", " + ((minZ+maxZ)/2) + ")");*/
-
-        // We build the triangles using the vertices ids & the vertices itself
-        for(int i = 0; i + 2 < id.size(); i += 3){
-            // let us remember that obj files begins on an index 1
-            // Thus we subtract 1 to make the indexes begin at 1
-            int vertexIndex1 = id.get(i) - 1;     // Index base 0 :)
+        int faceIndex = 0;
+        for(int i = 0; i + 2 < id.size(); i += 3, faceIndex++) {
+            int vertexIndex1 = id.get(i) - 1;
             int vertexIndex2 = id.get(i + 1) - 1;
             int vertexIndex3 = id.get(i + 2) - 1;
 
-            // We verify that none of the vertices are invalid
-            int numVertices = Vertices.size() / 3;  // It has to be a multiple of 3... TRIANGLES
-            if (vertexIndex1 < 0 || vertexIndex1 >= numVertices || vertexIndex2 < 0 || vertexIndex2 >= numVertices || vertexIndex3 < 0 || vertexIndex3 >= numVertices) {
-                System.err.println("BOMBOCLAT!: Invalid vertex index at face " + (i/3)); //red color will make it obvious, isn't it?
+            if (vertexIndex1 < 0 || vertexIndex1 >= numVertices ||
+                    vertexIndex2 < 0 || vertexIndex2 >= numVertices ||
+                    vertexIndex3 < 0 || vertexIndex3 >= numVertices) {
+                System.err.println("BOMBOCLAT!: Invalid vertex index at face " + faceIndex);
                 continue;
             }
 
-            // We create indexes for each vertex (x,y,z) by multiplying by 3
             int idx1 = vertexIndex1 * 3;
             int idx2 = vertexIndex2 * 3;
             int idx3 = vertexIndex3 * 3;
 
-            // We create the 3 triangle's vertices by storing each coordinate of them all
             Vector3D v1 = new Vector3D(
-                    Vertices.get(idx1),     // x
-                    Vertices.get(idx1 + 1), // y
-                    Vertices.get(idx1 + 2)  // z
+                    Vertices.get(idx1),
+                    Vertices.get(idx1 + 1),
+                    Vertices.get(idx1 + 2)
             );
-
             Vector3D v2 = new Vector3D(
-                    Vertices.get(idx2),     // x
-                    Vertices.get(idx2 + 1), // y
-                    Vertices.get(idx2 + 2)  // z
+                    Vertices.get(idx2),
+                    Vertices.get(idx2 + 1),
+                    Vertices.get(idx2 + 2)
             );
-
             Vector3D v3 = new Vector3D(
-                    Vertices.get(idx3),     // x
-                    Vertices.get(idx3 + 1), // y
-                    Vertices.get(idx3 + 2)  // z
+                    Vertices.get(idx3),
+                    Vertices.get(idx3 + 1),
+                    Vertices.get(idx3 + 2)
             );
 
-            // We add the color to each of the triangles
-            Triangle t = new Triangle(v1, v2, v3, this.color);
+            // Retrieve vertex normals if available
+            Vector3D vn1 = null, vn2 = null, vn3 = null;
+            if (vNormals != null && !vNormals.isEmpty() && idNormals != null) {
+                int ni1 = idNormals.get(i) - 1;
+                int ni2 = idNormals.get(i + 1) - 1;
+                int ni3 = idNormals.get(i + 2) - 1;
+                vn1 = new Vector3D(vNormals.get(ni1*3), vNormals.get(ni1*3+1), vNormals.get(ni1*3+2));
+                vn2 = new Vector3D(vNormals.get(ni2*3), vNormals.get(ni2*3+1), vNormals.get(ni2*3+2));
+                vn3 = new Vector3D(vNormals.get(ni3*3), vNormals.get(ni3*3+1), vNormals.get(ni3*3+2));
+            }
 
-            // We add the triangle to the list
+            int smooth = (faceSmoothGroups != null && faceIndex < faceSmoothGroups.size())
+                    ? faceSmoothGroups.get(faceIndex) : 0;
+
+            // Create triangle with all data
+            Triangle t = new Triangle(v1, v2, v3, this.color, vn1, vn2, vn3, smooth);
             triangles.add(t);
         }
 
-        //Used for debugging the faces (triangles) created <-------------
         //System.out.println("Total triangles created: " + triangles.size());
     }
 
@@ -94,17 +86,24 @@ public class Obj extends Object3D {
     public Intersection collition(Ray ray) {
         Intersection closest = null;
 
-        // We verify each obj's triangles intersection with each ray
         for (Triangle triangle : triangles) {
             Intersection hit = triangle.collition(ray);
-            Vector3D hitNormal = triangle.getNormal();
-            if (hit != null) { // if there's a hit
+            if (hit != null) {
                 if (closest == null || hit.getDistance() < closest.getDistance()) {
-                    // We save the hit with the triangle & save the normal
                     closest = hit;
-                    closest.setNormal(triangle.getNormal());
                 }
             }
+        }
+
+        if (closest != null) {
+            Triangle tri = (Triangle) closest.getObject();
+            Vector3D finalNormal;
+            if (tri.getSmoothGroup() == 0 || !tri.hasVertexNormals()) {
+                finalNormal = tri.getNormal(); // flat shading
+            } else {
+                finalNormal = tri.getInterpolatedNormal(closest.getU(), closest.getV());
+            }
+            closest.setNormal(finalNormal);
         }
 
         return closest;
@@ -112,7 +111,7 @@ public class Obj extends Object3D {
 
     @Override
     public int[] DiffuseShading(Vector3D rayDirection, int[] color, double rayIntensity, Vector3D normal) {
-        return new int[]{0, 0, 0};
+        return new int[]{0, 0, 0}; // Unused, shading handled per triangle
     }
 
     @Override

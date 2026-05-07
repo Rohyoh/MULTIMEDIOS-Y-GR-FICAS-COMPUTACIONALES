@@ -45,16 +45,37 @@ public class Raytracer {
         );
         scene.addObject(reader.getObj());
 
+        /*OBJreader reader = new OBJreader(
+                "objects/starv2.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                0.5,                         // Scale
+                0,                           // translateX
+                -0.5,                        // translateY
+                -3                          // translateZ
+        );
+        scene.addObject(reader.getObj());*/
+
+        /*OBJreader reader = new OBJreader(
+                "objects/temple.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color
+                0.05,                         // Scale
+                0,                           // translateX
+                -0.5,                        // translateY
+                -2                          // translateZ
+        );
+        scene.addObject(reader.getObj());*/
+
         // Create camera
         // Camera is at origin (0, 0, 0) looking towards -Z
         Camera camera = new Camera(
                 new Vector3D(0, 0, 0),       // Position at origin
-                60,                           // field of view
+                75,                           // field of view
                 width,
                 height,
-                1.0,        // nearplane
-                100         // farplane
+                0.1,        // nearplane
+                2000         // farplane
         );
+
 
         // Render the scene
         System.out.println("Let him cook now...");
@@ -72,8 +93,7 @@ public class Raytracer {
 
     // rendering part
     // For each pixel, cast a ray and determine its color
-    private static BufferedImage render(Scene scene, Camera camera,
-                                        int width, int height) {
+    private static BufferedImage render(Scene scene, Camera camera, int width, int height) {
         // Create blank image
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
@@ -92,7 +112,7 @@ public class Raytracer {
                     Vector3D normal = intersection.getNormal(); // Asegúrate de tener el getter en Intersection
 
                     // Light data
-                    Vector3D Light = new Vector3D(0, 0, 5);
+                    Vector3D Light = new Vector3D(0, 1, 1);
                     Light.normalize();
                     int[] Lc = {255, 255, 255}; // Light's color
                     double Li = 1.0;            // Max intensity
