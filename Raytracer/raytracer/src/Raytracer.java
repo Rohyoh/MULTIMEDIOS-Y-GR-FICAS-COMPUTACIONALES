@@ -65,6 +65,28 @@ public class Raytracer {
         );
         scene.addObject(reader.getObj());*/
 
+        // Create lights
+        // Directional light 1
+        scene.addLight(new DirectionalLight(
+                new Vector3D(0, 1, 1),
+                new int[]{255, 255, 255},
+                1.0
+        ));
+
+        // Directional light 2
+        scene.addLight(new DirectionalLight(
+                new Vector3D(0, 2, 2),
+                new int[]{255, 0, 0},
+                1.0
+        ));
+
+        // Point light
+        scene.addLight(new PointLight(
+                new Vector3D(0, 2, -3),
+                new int[]{200, 200, 255},      // slightly bluish
+                0.6
+        ));
+
         // Create camera
         // Camera is at origin (0, 0, 0) looking towards -Z
         Camera camera = new Camera(
@@ -109,16 +131,37 @@ public class Raytracer {
                 int rgb;
                 if (intersection != null) {
                     Object3D hitObject = intersection.getObject();
-                    Vector3D normal = intersection.getNormal(); // Asegúrate de tener el getter en Intersection
+                    Vector3D normal = intersection.getNormal(); // already flat or interpolated (Phong)
 
-                    // Light data
-                    Vector3D Light = new Vector3D(0, 1, 1);
-                    Light.normalize();
-                    int[] Lc = {255, 255, 255}; // Light's color
-                    double Li = 1.0;            // Max intensity
+                    // Calculate hit point O + t*D
+                    Vector3D hitPoint = ray.getCamera().add(
+                            ray.getDirection().multiply(intersection.getDistance())
+                    );
 
-                    int[] color = hitObject.DiffuseShading(Light, Lc, Li, normal);
-                    rgb = (color[0] << 16) | (color[1] << 8) | color[2];
+                    int[] objColor = hitObject.getColor();
+
+                    // Accumulate lighting from all lights
+                    double r = 0, g = 0, b = 0;
+                    for (Light light : scene.getLights()) {
+                        Vector3D lightDir = light.getDirection(hitPoint);
+
+                        // Lambertian diffuse: max(0, N·L)
+                        double angle = Math.max(0, normal.point(lightDir));
+
+                        // Lc * Oc * Li * angle
+                        int[] Lc = light.getColor();
+                        double Li = light.getIntensity();
+                        r += (Lc[0] / 255.0) * (objColor[0] / 255.0) * Li * angle * 255;
+                        g += (Lc[1] / 255.0) * (objColor[1] / 255.0) * Li * angle * 255;
+                        b += (Lc[2] / 255.0) * (objColor[2] / 255.0) * Li * angle * 255;
+                    }
+
+                    // Clamp to [0, 255]
+                    int rr = (int) Math.min(r, 255);
+                    int gg = (int) Math.min(g, 255);
+                    int bb = (int) Math.min(b, 255);
+
+                    rgb = (rr << 16) | (gg << 8) | bb;
                 } else {
                     // Ray didn't hit anything --> background color (white)
                     rgb = 0xFFFFFF;

@@ -53,7 +53,7 @@ public class Triangle extends Object3D {
     @Override
     public int[] DiffuseShading(Vector3D rayDirection, int[] color, double rayIntensity, Vector3D normal) {
         //We calculate the ray's direction... let us remember that cos(theta) = N (triangle's normal) dot L (rayDirection)
-        // we use the normal passed as parameter -> important for Phong!
+        // Now using the normal passed as parameter (not this.normal) -> important for Phong!
         double angle = Math.max(0, normal.point(rayDirection)); // by using max(0, etc) we're outting all possible negative values
 
         // We apply the lambertian surface formula for flat shading --> Lc * Oc * Li * Angle

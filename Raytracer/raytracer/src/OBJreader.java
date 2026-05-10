@@ -12,13 +12,6 @@ public class OBJreader {
     public ArrayList<Integer> faceSmoothGroups = new ArrayList<>();
     private Obj obj; // we save the created object
 
-    /* Constructor with no transformation (the obj as it is)
-    public OBJreader(String filename, int[] color) {
-        verticesReader(filename); // we gather all the file's vertices
-        instructionReader(filename); // we gather the instructions to build the object's faces
-        obj = objBuilder(vertices, id, color);
-    }*/
-
     // Constructor with transformations
     public OBJreader(String filename, int[] color, double scale, double translateX, double translateY, double translateZ) {
         readObj(filename);

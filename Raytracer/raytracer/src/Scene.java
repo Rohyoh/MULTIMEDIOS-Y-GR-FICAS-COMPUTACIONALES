@@ -3,14 +3,21 @@ import java.util.List;
 
 public class Scene {
     private List<Object3D> objects;
+    private List<Light> lights; // BOMBOCLAT! now we support multiple lights
 
     public Scene() {
         this.objects = new ArrayList<>();
+        this.lights = new ArrayList<>();
     }
 
     // Add an object to the scene
     public void addObject(Object3D object) {
         this.objects.add(object);
+    }
+
+    // Add a light to the scene
+    public void addLight(Light light) {
+        this.lights.add(light);
     }
 
     // Find the closest intersection with any object in the scene
@@ -37,5 +44,9 @@ public class Scene {
 
     public List<Object3D> getObjects() {
         return objects;
+    }
+
+    public List<Light> getLights() {
+        return lights;
     }
 }
