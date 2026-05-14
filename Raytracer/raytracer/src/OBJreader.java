@@ -68,18 +68,42 @@ public class OBJreader {
                     }
                 }
                 else if (line.startsWith("f ")) { // <--- lines with faces
+                    // We store all vertices & normals in this face first
+                    ArrayList<Integer> faceVertices = new ArrayList<>();
+                    ArrayList<Integer> faceNormals = new ArrayList<>();
+
                     for (int i = 1; i < parts.length; i++) { // we begin at 1 because parts[0] = "f"
-                        String[] ids = parts[i].split("/"); // We separate the block "1/11/1"  into -> ["1", "11",
+                        String[] ids = parts[i].split("/"); // We separate the block "1/11/1"  into -> ["1", "11", "1"]
                         if (ids.length > 0 && !ids[0].isEmpty()) {
-                            id.add(Integer.parseInt(ids[0])); // we save the vertex id
+                            faceVertices.add(Integer.parseInt(ids[0])); // we save the vertex id
                         }
                         if (ids.length > 2 && !ids[2].isEmpty()) {
-                            idNormals.add(Integer.parseInt(ids[2])); // we save the normal id
+                            faceNormals.add(Integer.parseInt(ids[2])); // we save the normal id
                         }
                     }
 
-                    faceGroups.add(currentGroup); // we store the face groups
-                    faceSmoothGroups.add(currentSmoothGroup); // we store the smooth groups
+                    // Fan method: triangulate from the first vertex
+                    // Triangle 1: v0, v1, v2
+                    // Triangle 2: v0, v2, v3
+                    // Triangle 3: v0, v3, v4
+                    // etc.
+                    for (int i = 1; i + 1 < faceVertices.size(); i++) {
+                        // Each triangle uses vertex 0, i, and i+1
+                        id.add(faceVertices.get(0));
+                        id.add(faceVertices.get(i));
+                        id.add(faceVertices.get(i + 1));
+
+                        // Add normals if they exist
+                        if (!faceNormals.isEmpty()) {
+                            idNormals.add(faceNormals.get(0));
+                            idNormals.add(faceNormals.get(i));
+                            idNormals.add(faceNormals.get(i + 1));
+                        }
+
+                        // Each generated triangle gets the same group & smooth settings
+                        faceGroups.add(currentGroup);
+                        faceSmoothGroups.add(currentSmoothGroup);
+                    }
                     // this was tuff ngl, tuff tuff tuff zahur.
                 }
             }

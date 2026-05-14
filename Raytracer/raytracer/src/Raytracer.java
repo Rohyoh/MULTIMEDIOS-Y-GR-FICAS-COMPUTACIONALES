@@ -45,6 +45,16 @@ public class Raytracer {
         );
         scene.addObject(reader.getObj());
 
+        OBJreader cube = new OBJreader(
+                "objects/cube.obj",           // obj's path
+                new int[]{200, 200, 200},     // Color (orange)
+                20,                         // Scale
+                0,                           // translateX
+                -25,                        // translateY
+                -4.5                          // translateZ
+        );
+        scene.addObject(cube.getObj());
+
         /*OBJreader reader = new OBJreader(
                 "objects/starv2.obj",           // obj's path
                 new int[]{255, 100, 0},     // Color (orange)
@@ -55,7 +65,7 @@ public class Raytracer {
         );
         scene.addObject(reader.getObj());*/
 
-        /*OBJreader reader = new OBJreader(
+        /*OBJreader reader2 = new OBJreader(
                 "objects/temple.obj",           // obj's path
                 new int[]{255, 100, 0},     // Color
                 0.05,                         // Scale
@@ -63,28 +73,28 @@ public class Raytracer {
                 -0.5,                        // translateY
                 -2                          // translateZ
         );
-        scene.addObject(reader.getObj());*/
+        scene.addObject(reader2.getObj());*/
 
         // Create lights
         // Directional light 1
-        scene.addLight(new DirectionalLight(
+        /*scene.addLight(new DirectionalLight(
                 new Vector3D(0, 1, 1),
                 new int[]{255, 255, 255},
                 1.0
-        ));
+        ));*/
 
         // Directional light 2
-        scene.addLight(new DirectionalLight(
+        /*scene.addLight(new DirectionalLight(
                 new Vector3D(0, 2, 2),
                 new int[]{255, 0, 0},
                 1.0
-        ));
+        ));*/
 
         // Point light
         scene.addLight(new PointLight(
-                new Vector3D(0, 2, -3),
-                new int[]{200, 200, 255},      // slightly bluish
-                0.6
+                new Vector3D(0, 2, -2),
+                new int[]{255, 255, 255},      // slightly bluish
+                3.0
         ));
 
         // Create camera
@@ -148,9 +158,43 @@ public class Raytracer {
                         // Lambertian diffuse: max(0, N·L)
                         double angle = Math.max(0, normal.point(lightDir));
 
+                        // Skip if surface faces away from light
+                        if (angle <= 0) continue;
+
+                        // SHADOW RAY: check if there's an obstruction between hitPoint and light
+                        // We offset the origin slightly along the normal to avoid self-shadowing
+                        Vector3D shadowRayOrigin = hitPoint.add(normal.multiply(0.001));
+                        Ray shadowRay = new Ray(shadowRayOrigin, lightDir);
+
+                        // Calculate maximum distance to check for shadows
+                        double maxShadowDistance;
+                        if (light instanceof PointLight) {
+                            // For point lights, only check up to the light position
+                            Vector3D toLight = Vector3D.L(((PointLight) light).getPosition(), hitPoint);
+                            maxShadowDistance = Math.sqrt(toLight.square());
+                        } else {
+                            // For directional lights, check up to far plane
+                            maxShadowDistance = camera.getFar();
+                        }
+
+                        // Check for shadow collision
+                        Intersection shadowHit = scene.raycast(shadowRay, 0.001, maxShadowDistance);
+
+                        // If there's an obstruction, skip this light (we're in shadow)
+                        if (shadowHit != null) continue;
+
+                        // Calculate light intensity with falloff for PointLight
+                        double Li;
+                        if (light instanceof PointLight) {
+                            // Apply inverse square law: L_I = intensity / d²
+                            Li = ((PointLight) light).getIntensityAtPoint(hitPoint);
+                        } else {
+                            // DirectionalLight has no falloff (sun is infinitely far)
+                            Li = light.getIntensity();
+                        }
+
                         // Lc * Oc * Li * angle
                         int[] Lc = light.getColor();
-                        double Li = light.getIntensity();
                         r += (Lc[0] / 255.0) * (objColor[0] / 255.0) * Li * angle * 255;
                         g += (Lc[1] / 255.0) * (objColor[1] / 255.0) * Li * angle * 255;
                         b += (Lc[2] / 255.0) * (objColor[2] / 255.0) * Li * angle * 255;
