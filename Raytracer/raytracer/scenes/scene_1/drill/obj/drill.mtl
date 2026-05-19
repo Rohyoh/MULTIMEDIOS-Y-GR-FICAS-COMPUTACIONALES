@@ -1,0 +1,22 @@
+# Blender 5.1.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Screen.tga.001
+Ns 159.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd Screen.tga.png
+map_Ke Screen.tga.png
+
+newmtl drill_small_df.tga.001
+Ns 234.829544
+Ka 0.558912 0.558912 0.558912
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd drill_small_df.tga.png

@@ -2,17 +2,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Scene {
-    private List<Object3D> objects;
-    private List<Light> lights; // BOMBOCLAT! now we support multiple lights
+    private Bvhleaf bvhRoot;          // Root of the BVH
+    private List<Object3D> objects;   // List of all objects (for dynamic updates)
+    private List<Light> lights;
+    private boolean bvhDirty;         // Flag to rebuild BVH when objects change
 
     public Scene() {
         this.objects = new ArrayList<>();
         this.lights = new ArrayList<>();
+        this.bvhDirty = false;
     }
 
     // Add an object to the scene
     public void addObject(Object3D object) {
         this.objects.add(object);
+        this.bvhDirty = true;   // Rebuild BVH on next raycast
     }
 
     // Add a light to the scene
@@ -20,33 +24,29 @@ public class Scene {
         this.lights.add(light);
     }
 
+    // Rebuild BVH from current objects
+    private void rebuildBVH() {
+        if (objects.isEmpty()) {
+            bvhRoot = null;
+        } else {
+            bvhRoot = Bvhleaf.build(objects);
+        }
+        bvhDirty = false;
+    }
+
     // Find the closest intersection with any object in the scene
     // Returns null if no intersection found
     public Intersection raycast(Ray ray, double near, double far) {
-        Intersection closestIntersection = null;
-
-        // We search through each object in the scene
-        for (Object3D obj : objects) {
-            Intersection intersection = obj.collition(ray);
-
-            if (intersection != null) {
-                double dist = intersection.getDistance();
-                // The object has to be between near & far plane
-                if (dist >= near && dist <= far) {
-                    if (closestIntersection == null || dist < closestIntersection.getDistance()) {
-                        closestIntersection = intersection;
-                    }
-                }
-            }
-        }
-        return closestIntersection;
-    }
-
-    public List<Object3D> getObjects() {
-        return objects;
+        if (bvhDirty) rebuildBVH();
+        if (bvhRoot == null) return null;
+        return bvhRoot.intersect(ray, near, far);
     }
 
     public List<Light> getLights() {
         return lights;
+    }
+
+    public List<Object3D> getObjects() {
+        return objects;
     }
 }

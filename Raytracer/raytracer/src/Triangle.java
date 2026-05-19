@@ -27,6 +27,9 @@ public class Triangle extends Object3D {
         this.normal = Vector3D.cross(V, W);
         this.normal.normalize();
         this.color = color;
+
+        // Calculate bounding box from the three vertices
+        this.boundingBox = BoundingBox.fromPoints(v0, v1, v2);
     }
 
     // Interpolate vertex normals using barycentric coordinates (u, v)

@@ -6,74 +6,94 @@ import java.io.IOException;
 public class Raytracer {
     public static void main(String[] args) {
         // Image dimensions
-        int width = 800;
-        int height = 600;
+        int width = 4096;
+        int height = 2160;
 
         // Create scene
         Scene scene = new Scene();
 
-        // Add spheres to the scene
-        // Sphere parameters: position, radius, color [R, G, B]
         // IMPORTANT NOTE: camera looks towards -Z, so --> -Z = front xd
-        scene.addObject(new Sphere(
-                new Vector3D(0, 0, -5),      // Center
-                1.0,                          // Radius
-                new int[]{255, 0, 0}         // Color (Red)
-        ));
-
-        scene.addObject(new Sphere(
-                new Vector3D(2, 0, -6),      // Center
-                0.5,                          // Radius
-                new int[]{0, 0, 255}         // Color (blue)
-        ));
-
-        scene.addObject(new Triangle(
-                new Vector3D(-2, -1, -5),     // Origin + the other 2 coordinates
-                new Vector3D(2, -1, -5),
-                new Vector3D(0, 2, -5),
-                new int[]{0, 255, 0}         // Color (green)
-        ));
 
         // Adds Obj to the scene
         OBJreader reader = new OBJreader(
-                "objects/cat.obj",           // obj's path
+                "scenes/scene_1/drill/obj/drill.obj",           // obj's path
                 new int[]{255, 100, 0},     // Color (orange)
-                0.009,                         // Scale
+                1,                         // Scale
                 0,                           // translateX
-                -0.5,                        // translateY
-                -4.5                           // translateZ
+                -1,                        // translateY
+                -5.0                          // translateZ
         );
         scene.addObject(reader.getObj());
 
-        OBJreader cube = new OBJreader(
-                "objects/cube.obj",           // obj's path
-                new int[]{200, 200, 200},     // Color (orange)
-                20,                         // Scale
-                0,                           // translateX
-                -25,                        // translateY
-                -4.5                          // translateZ
-        );
-        scene.addObject(cube.getObj());
-
-        /*OBJreader reader = new OBJreader(
-                "objects/starv2.obj",           // obj's path
+        OBJreader reader2 = new OBJreader(
+                "scenes/scene_1/mask/obj/dallasMask.obj",           // obj's path
                 new int[]{255, 100, 0},     // Color (orange)
-                0.5,                         // Scale
+                1,                         // Scale
                 0,                           // translateX
-                -0.5,                        // translateY
-                -3                          // translateZ
+                -1,                        // translateY
+                -5.0                          // translateZ
         );
-        scene.addObject(reader.getObj());*/
+        scene.addObject(reader2.getObj());
 
-        /*OBJreader reader2 = new OBJreader(
-                "objects/temple.obj",           // obj's path
-                new int[]{255, 100, 0},     // Color
-                0.05,                         // Scale
+        OBJreader reader3 = new OBJreader(
+                "scenes/scene_1/moneyStack/obj/moneyStack.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
                 0,                           // translateX
-                -0.5,                        // translateY
-                -2                          // translateZ
+                -1,                        // translateY
+                -5.0                          // translateZ
         );
-        scene.addObject(reader2.getObj());*/
+        scene.addObject(reader3.getObj());
+
+        OBJreader reader4 = new OBJreader(
+                "scenes/scene_1/room/obj/room.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
+                0,                           // translateX
+                -1,                        // translateY
+                -5.0                          // translateZ
+        );
+        scene.addObject(reader4.getObj());
+
+        OBJreader reader5 = new OBJreader(
+                "scenes/scene_1/safe/obj/safe.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
+                0,                           // translateX
+                -1,                        // translateY
+                -5.0                          // translateZ
+        );
+        scene.addObject(reader5.getObj());
+
+        OBJreader reader6 = new OBJreader(
+                "scenes/scene_1/shotgun/obj/shotgun.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
+                0,                           // translateX
+                -1,                        // translateY
+                -5.0                          // translateZ
+        );
+        scene.addObject(reader6.getObj());
+
+        OBJreader reader7 = new OBJreader(
+                "scenes/scene_1/flask/obj/flask.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
+                0,                           // translateX
+                -1,                        // translateY
+                -5.0                          // translateZ
+        );
+        scene.addObject(reader7.getObj());
+
+        OBJreader reader8 = new OBJreader(
+                "scenes/scene_1/rifle/obj/rifle.obj",           // obj's path
+                new int[]{255, 100, 0},     // Color (orange)
+                1,                         // Scale
+                0,                           // translateX
+                -1,                        // translateY
+                -5.0                          // translateZ
+        );
+        scene.addObject(reader8.getObj());
 
         // Create lights
         // Directional light 1
@@ -92,8 +112,14 @@ public class Raytracer {
 
         // Point light
         scene.addLight(new PointLight(
-                new Vector3D(0, 2, -2),
-                new int[]{255, 255, 255},      // slightly bluish
+                new Vector3D(-2, 1, -1),
+                new int[]{255, 255, 255},      // color
+                3.0
+        ));
+
+        scene.addLight(new PointLight(
+                new Vector3D(2, 1, -2),
+                new int[]{255, 255, 255},      // color
                 3.0
         ));
 
@@ -101,11 +127,11 @@ public class Raytracer {
         // Camera is at origin (0, 0, 0) looking towards -Z
         Camera camera = new Camera(
                 new Vector3D(0, 0, 0),       // Position at origin
-                75,                           // field of view
+                90,                           // field of view
                 width,
                 height,
                 0.1,        // nearplane
-                2000         // farplane
+                1000         // farplane
         );
 
 
@@ -207,16 +233,16 @@ public class Raytracer {
 
                     rgb = (rr << 16) | (gg << 8) | bb;
                 } else {
-                    // Ray didn't hit anything --> background color (white)
-                    rgb = 0xFFFFFF;
+                    // Ray didn't hit anything --> background color
+                    rgb = 0x000000;
                 }
 
                 // Set pixel color
                 image.setRGB(x, y, rgb);
             }
 
-            // Progress indicator every 50 lines
-            if (y % 50 == 0) {
+            // Progress indicator every 20 lines
+            if (y % 20 == 0) {
                 System.out.println("Progress: " + (y * 100 / height) + "%");
             }
         }

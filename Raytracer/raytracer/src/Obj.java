@@ -1,31 +1,25 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Obj extends Object3D {
-    ArrayList<Triangle> triangles = new ArrayList<>();
-    private int[] color; // Obj's color
+    private ArrayList<Triangle> triangles;
+    private int[] color;
+    private Bvhleaf triangleBVH;   // Internal BVH over triangles
 
     public Obj(ArrayList<Double> Vertices, ArrayList<Integer> id,
                ArrayList<Double> vNormals, ArrayList<Integer> idNormals,
                ArrayList<Integer> faceSmoothGroups, int[] color) {
-        // We use the first vertices as the obj's base
         super(new Vector3D(0, 0, 0)); // Relative position with the origin
         this.color = color;
+        this.triangles = new ArrayList<>();
         objBuilder(Vertices, id, vNormals, idNormals, faceSmoothGroups);
+        buildTriangleBVH();   // Build BVH after constructing all triangles
     }
 
     public void objBuilder(ArrayList<Double> Vertices, ArrayList<Integer> id,
                            ArrayList<Double> vNormals, ArrayList<Integer> idNormals,
                            ArrayList<Integer> faceSmoothGroups) {
         int numVertices = Vertices.size() / 3;
-
-        // For debugging
-        /*
-        System.out.println("Total vertices: " + numVertices);
-        System.out.println("Total face indices: " + id.size());
-        System.out.println("Total vNormals: " + (vNormals != null ? vNormals.size() / 3 : 0));
-        System.out.println("Total idNormals: " + (idNormals != null ? idNormals.size() : 0));
-        System.out.println("Total smooth groups: " + (faceSmoothGroups != null ? faceSmoothGroups.size() : 0));
-        */
 
         int faceIndex = 0;
         for(int i = 0; i + 2 < id.size(); i += 3, faceIndex++) {
@@ -74,39 +68,72 @@ public class Obj extends Object3D {
             int smooth = (faceSmoothGroups != null && faceIndex < faceSmoothGroups.size())
                     ? faceSmoothGroups.get(faceIndex) : 0;
 
-            // Create triangle with all data
             Triangle t = new Triangle(v1, v2, v3, this.color, vn1, vn2, vn3, smooth);
             triangles.add(t);
         }
 
-        //System.out.println("Total triangles created: " + triangles.size());
+        // Calculate bounding box for the entire Obj
+        this.boundingBox = null;
+        for (Triangle triangle : triangles) {
+            this.boundingBox = BoundingBox.merge(this.boundingBox, triangle.getBoundingBox());
+        }
+    }
+
+    // Build internal BVH over triangles
+    private void buildTriangleBVH() {
+        if (triangles.isEmpty()) {
+            triangleBVH = null;
+        } else {
+            // Convert triangles to List<Object3D> (Triangle extends Object3D)
+            List<Object3D> triList = new ArrayList<>(triangles);
+            triangleBVH = Bvhleaf.build(triList);
+        }
     }
 
     @Override
     public Intersection collition(Ray ray) {
-        Intersection closest = null;
+        // Early rejection using object's global bounding box
+        if (this.boundingBox != null && !this.boundingBox.intersects(ray, 0.0001, Double.POSITIVE_INFINITY)) {
+            return null;
+        }
 
-        for (Triangle triangle : triangles) {
-            Intersection hit = triangle.collition(ray);
+        // Use internal BVH if available
+        if (triangleBVH != null) {
+            Intersection hit = triangleBVH.intersect(ray, 0.0001, Double.POSITIVE_INFINITY);
             if (hit != null) {
-                if (closest == null || hit.getDistance() < closest.getDistance()) {
-                    closest = hit;
+                Triangle tri = (Triangle) hit.getObject();
+                Vector3D finalNormal;
+                if (tri.getSmoothGroup() == 0 || !tri.hasVertexNormals()) {
+                    finalNormal = tri.getNormal();
+                } else {
+                    finalNormal = tri.getInterpolatedNormal(hit.getU(), hit.getV());
+                }
+                hit.setNormal(finalNormal);
+            }
+            return hit;
+        } else {
+            // Fallback to linear search
+            Intersection closest = null;
+            for (Triangle triangle : triangles) {
+                Intersection hit = triangle.collition(ray);
+                if (hit != null) {
+                    if (closest == null || hit.getDistance() < closest.getDistance()) {
+                        closest = hit;
+                    }
                 }
             }
-        }
-
-        if (closest != null) {
-            Triangle tri = (Triangle) closest.getObject();
-            Vector3D finalNormal;
-            if (tri.getSmoothGroup() == 0 || !tri.hasVertexNormals()) {
-                finalNormal = tri.getNormal(); // flat shading
-            } else {
-                finalNormal = tri.getInterpolatedNormal(closest.getU(), closest.getV());
+            if (closest != null) {
+                Triangle tri = (Triangle) closest.getObject();
+                Vector3D finalNormal;
+                if (tri.getSmoothGroup() == 0 || !tri.hasVertexNormals()) {
+                    finalNormal = tri.getNormal();
+                } else {
+                    finalNormal = tri.getInterpolatedNormal(closest.getU(), closest.getV());
+                }
+                closest.setNormal(finalNormal);
             }
-            closest.setNormal(finalNormal);
+            return closest;
         }
-
-        return closest;
     }
 
     @Override

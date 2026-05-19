@@ -1,0 +1,78 @@
+# Blender 5.1.1 MTL File: 'room.blend'
+# www.blender.org
+
+newmtl Glass.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ns metalnessMap2.png
+map_refl metalnessMap2.png
+
+newmtl Plastic.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.632919 0.773557 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ns roughnessMap7.png
+map_refl metalnessMap7.png
+
+newmtl beige_wall_001.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd beige_wall_001.png
+map_Ns roughnessMap1.png
+map_refl metalnessMap1.png
+
+newmtl laminate_floor_02.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd laminate_floor_02.png
+map_Ns roughnessMap3.png
+map_refl metalnessMap3.png
+
+newmtl leather_white.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd leather_white.png
+map_Ns roughnessMap4.png
+map_refl metalnessMap4.png
+
+newmtl material.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 1.000000 1.000000 1.000000
+Ni 1.500000
+d 1.000000
+illum 1
+
+newmtl plywood.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd plywood.png
+map_Ns roughnessMap5.png
+map_refl metalnessMap5.png
